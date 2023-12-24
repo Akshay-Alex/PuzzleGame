@@ -6,8 +6,7 @@ using Newtonsoft.Json;
 
 public class LevelManager : MonoBehaviour
 {
-    public Level level1;
-    public Level _currentLevel;
+    public string _currentLevel;
     public static LevelManager levelManager;
     public string _levelDataPath;
     public int _numberOfColorsInCurrentLevel,_numberOfColorsCompleted;
@@ -31,21 +30,15 @@ public class LevelManager : MonoBehaviour
     }
     public void FinishLevel()
     {
+        GameLogicManager.gameLogicManager.ResetBoard();
+        MenuManager.menuManager.ToggleLevelMenu(true);
+        MenuManager.menuManager.ToggleInGameMenu(false);
         Debug.Log("level finished");
-    }
-    void CreateOneLevel()
-    {
-        level1 = new Level();
-        level1._levelName = "Level 1";
-        level1._startPoints.Add((new Vector2(3, 3)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA (Color.red));
-        level1._startPoints.Add((new Vector2(1, 3)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.red));
-        level1._startPoints.Add((new Vector2(0, 0)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.green));
-        level1._startPoints.Add((new Vector2(4, 1)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.green));
     }
     void LoadLevel(string json)
     {
         var level = JsonConvert.DeserializeObject<Level>(json);
-        _currentLevel = level;
+        _currentLevel = json;
         foreach(KeyValuePair<string,string> point in level._startPoints)
         {
             var Tile = GridManager.gridManager.GetTileAtPosition((StringToVector2(point.Key)));
@@ -58,16 +51,16 @@ public class LevelManager : MonoBehaviour
         _numberOfColorsInCurrentLevel = level._startPoints.Count/2;
         _numberOfColorsCompleted = 0;
     }
-    public void SaveLevelAsJson(Level level)
+    public void ResetLevel()
     {
-        string json = JsonConvert.SerializeObject(level);
-        //Debug.Log("data path " + Application.dataPath + "/Resources/LevelData/");
-        File.WriteAllText(_levelDataPath + level._levelName + ".txt", json);
+        LoadLevel(_currentLevel);
     }
-    public void ReadAndLoadLevel()
+    public void ReadAndLoadLevel(string _filename)
     {
-        string json = File.ReadAllText(_levelDataPath + "Level 1" + ".txt");
+        string json = File.ReadAllText(_levelDataPath + _filename);
         LoadLevel(json);
+        MenuManager.menuManager.ToggleLevelMenu(false);
+        MenuManager.menuManager.ToggleInGameMenu(true);
     }
     public Vector2 StringToVector2(string rString)
     {

@@ -8,7 +8,7 @@ public class ColorLine : MonoBehaviour
     public List<Vector3> _points;
     public List<Tile> _tilesInSameLine;
     public int _nextPosition;
-    public Tile _currentSelectedTile;
+    public Tile _currentSelectedTile,_currentStartTile;
     public bool isCompleted;
     // Start is called before the first frame update
     void Start()
@@ -28,6 +28,14 @@ public class ColorLine : MonoBehaviour
     {
         _lineRenderer.startColor = color;
         _lineRenderer.endColor = color;
+    }
+    public bool IsEndTile(Tile tile)
+    {
+        if(GetColor() == tile._startingTileColor && tile._isStartingTile && tile!=_currentStartTile)
+        {
+            return true;
+        }
+        return false;
     }
     public Color GetColor()
     {
@@ -55,15 +63,16 @@ public class ColorLine : MonoBehaviour
     }
     public void FinishLine(Tile tile)
     {
-        tile.ToggleTileHighlight(false);
+        AddNewPoint(tile);
         ToggleHighlightOfTiles(false);
-        _lineRenderer.positionCount++;
-        _points.Add(tile.transform.position);
-        _lineRenderer.SetPositions(_points.ToArray());
+        _currentSelectedTile = null;
+        _currentStartTile = null;
+        LevelManager.levelManager.ColorCompleted();
         LevelManager.levelManager.CheckIfAllLinesConnected();
     }
     public void AddStartingTileToLine(Tile tile)
     {
+        tile._isLineDrawnThroughTile = true;
         _lineRenderer.positionCount++;
         _points.Add(tile.transform.position);
         _lineRenderer.SetPositions(_points.ToArray());
@@ -107,10 +116,10 @@ public class ColorLine : MonoBehaviour
     {
         ToggleHighlightOfTiles(false);
     }
-    bool CanTileBeFilled(Tile tile)
+    bool TileCannotBeFilled(Tile tile)
     {
-        if ((tile._isLineDrawnThroughTile || (tile._isStartingTile && tile._startingTileColor != _lineRenderer.startColor)))
-            return false;
+        if ((tile._isLineDrawnThroughTile && (tile!=_currentSelectedTile)) || tile._isStartingTile && tile._startingTileColor != GetColor())
+            return true;
         return false;
     }
     void FindTilesInSameRow(Vector3 position)
@@ -122,15 +131,19 @@ public class ColorLine : MonoBehaviour
             while(currentStartTilePosition <= position.x)
             {
                 var TileAtPosition = GridManager.gridManager.GetTileAtPosition(new Vector2(currentStartTilePosition, position.y));
-                if(CanTileBeFilled(TileAtPosition) && TileAtPosition != _currentSelectedTile)
+                if (TileAtPosition)
                 {
-                    break;
-                }
-                if(TileAtPosition)
-                {
+                    if (TileCannotBeFilled(TileAtPosition))
+                    {
+                        break;
+                    }
                     _tilesInSameLine.Add(TileAtPosition);
-                }            
-                currentStartTilePosition += 1;
+                    currentStartTilePosition += 1;
+                    if(IsEndTile(TileAtPosition))
+                    {
+                        break;
+                    }
+                }
             }
         }
         else if(_currentSelectedTile.transform.position.x > position.x)
@@ -140,15 +153,19 @@ public class ColorLine : MonoBehaviour
             while (currentStartTilePosition >= position.x)
             {
                 var TileAtPosition = GridManager.gridManager.GetTileAtPosition(new Vector2(currentStartTilePosition, position.y));
-                if (CanTileBeFilled(TileAtPosition) && TileAtPosition != _currentSelectedTile)
-                {
-                    break;
-                }
                 if (TileAtPosition)
                 {
+                    if (TileCannotBeFilled(TileAtPosition))
+                    {
+                        break;
+                    }
                     _tilesInSameLine.Add(TileAtPosition);
-                }
-                currentStartTilePosition -= 1;
+                    currentStartTilePosition -= 1;
+                    if (IsEndTile(TileAtPosition))
+                    {
+                        break;
+                    }
+                }               
             }
         }
     }
@@ -161,15 +178,19 @@ public class ColorLine : MonoBehaviour
             while (currentStartTilePosition <= position.y)
             {
                 var TileAtPosition = GridManager.gridManager.GetTileAtPosition(new Vector2(position.x, currentStartTilePosition));
-                if (CanTileBeFilled(TileAtPosition) && TileAtPosition != _currentSelectedTile)
-                {
-                    break;
-                }
                 if (TileAtPosition)
                 {
+                    if (TileCannotBeFilled(TileAtPosition))
+                    {
+                        break;
+                    }
                     _tilesInSameLine.Add(TileAtPosition);
-                }           
-                currentStartTilePosition += 1;
+                    currentStartTilePosition += 1;
+                    if (IsEndTile(TileAtPosition))
+                    {
+                        break;
+                    }
+                }                         
             }
         }
         else if(_currentSelectedTile.transform.position.y > position.y)
@@ -178,16 +199,20 @@ public class ColorLine : MonoBehaviour
             float currentStartTilePosition = _currentSelectedTile.transform.position.y;
             while (currentStartTilePosition >= position.y)
             {
-                var TileAtPosition = GridManager.gridManager.GetTileAtPosition(new Vector2(position.x, currentStartTilePosition));
-                if (CanTileBeFilled(TileAtPosition) && TileAtPosition != _currentSelectedTile)
-                {
-                    break;
-                }
+                var TileAtPosition = GridManager.gridManager.GetTileAtPosition(new Vector2(position.x, currentStartTilePosition));               
                 if (TileAtPosition)
                 {
+                    if (TileCannotBeFilled(TileAtPosition))
+                    {
+                        break;
+                    }
                     _tilesInSameLine.Add(TileAtPosition);
-                }              
-                currentStartTilePosition -= 1;
+                    currentStartTilePosition -= 1;
+                    if (IsEndTile(TileAtPosition))
+                    {
+                        break;
+                    }
+                }                     
             }
         }
     }

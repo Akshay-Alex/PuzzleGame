@@ -7,7 +7,13 @@ public class GameManager : MonoBehaviour
     public static GameManager gameManager;
     private void Start()
     {
+        //LevelButtonGenerator.levelButtonGenerator.GenerateLevelButtons();
+        //LevelManager.levelManager.ReadAndLoadLevel();
+    }
+    public void StartGame()
+    {
+        MenuManager.menuManager.TogglePlayGameMenu(false);
         GridManager.gridManager.GenerateGrid();
-        LevelManager.levelManager.ReadAndLoadLevel();
+        LevelButtonGenerator.levelButtonGenerator.GenerateLevelButtons();
     }
 }
