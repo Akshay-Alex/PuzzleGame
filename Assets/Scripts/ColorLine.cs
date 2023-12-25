@@ -65,10 +65,19 @@ public class ColorLine : MonoBehaviour
     {
         AddNewPoint(tile);
         ToggleHighlightOfTiles(false);
+        DisableStartingTileOfCurrentColor();
         _currentSelectedTile = null;
         _currentStartTile = null;
         LevelManager.levelManager.ColorCompleted();
         LevelManager.levelManager.CheckIfAllLinesConnected();
+    }
+    public void DisableStartingTileOfCurrentColor()
+    {
+        foreach (Vector3 point in _points)
+        {
+            var tile = GridManager.gridManager.GetTileAtPosition(new Vector2(point.x, point.y));
+            tile._isStartingTile = false;
+        }
     }
     public void DeselectCurrentStartTile()
     {
