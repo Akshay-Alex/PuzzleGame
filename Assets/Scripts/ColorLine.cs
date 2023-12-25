@@ -49,9 +49,9 @@ public class ColorLine : MonoBehaviour
             {
                 if(!_points.Contains(tile.transform.position) && (tile != _currentSelectedTile))
                 {
-                    Debug.Log("tile " + tile.gameObject.name + " position :" + tile.transform.position);
+                    //Debug.Log("tile " + tile.gameObject.name + " position :" + tile.transform.position);
                     _lineRenderer.positionCount++;
-                    Debug.Log("position count after increment " + _lineRenderer.positionCount);
+                    //Debug.Log("position count after increment " + _lineRenderer.positionCount);
                     _points.Add(tile.transform.position);
                     tile._isLineDrawnThroughTile = true;
                     
@@ -69,6 +69,17 @@ public class ColorLine : MonoBehaviour
         _currentStartTile = null;
         LevelManager.levelManager.ColorCompleted();
         LevelManager.levelManager.CheckIfAllLinesConnected();
+    }
+    public void DeselectCurrentStartTile()
+    {
+        if(_currentStartTile)
+        {
+            _currentStartTile.ToggleTileHighlight(false);
+        }
+        ResetHighlight();
+        //_currentStartTile.ToggleTileHighlight(false);
+        _currentSelectedTile = null;
+        _currentStartTile = null;
     }
     public void AddStartingTileToLine(Tile tile)
     {

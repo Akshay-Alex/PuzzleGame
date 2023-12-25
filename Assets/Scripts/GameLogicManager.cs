@@ -11,11 +11,13 @@ public class GameLogicManager : MonoBehaviour
     public ColorLine _colorLinePrefab;
     public static GameLogicManager gameLogicManager;
     public bool _startTileSelected;
+    public bool _currentLevelComplete;
     // Start is called before the first frame update
     void Start()
     {
         _startTileSelected = false;
         gameLogicManager = this;
+        _currentLevelComplete = false;
         //CreateColorLines();
     }
     public void CreateColorLine(Color color, Tile startTile)
@@ -44,16 +46,22 @@ public class GameLogicManager : MonoBehaviour
     {
         colorLine.SetColor(color);
     }
+
+    //start of logic
     public void TileSelected(Tile _selectedtile)
     {
-        if(_startTileSelected)
+        if(!_currentLevelComplete)
         {
-            TryToCreatePath(_selectedtile);
-        }
-        else
-        {
-            TryToSelectStartTile(_selectedtile);
-        }
+            SfxManager.sfxManager.PlayClickAudio();
+            if (_startTileSelected)
+            {
+                TryToCreatePath(_selectedtile);
+            }
+            else
+            {
+                TryToSelectStartTile(_selectedtile);
+            }
+        }  
     }
     void TryToCreatePath(Tile tile)
     {
@@ -73,8 +81,11 @@ public class GameLogicManager : MonoBehaviour
             }
             else if(IsEndTile(tile))
             {
-                _startTileSelected = false;
-                _currentLine.FinishLine(tile);
+                if(_currentLine._tilesInSameLine.Contains(tile))
+                {
+                    _startTileSelected = false;
+                    _currentLine.FinishLine(tile);
+                }            
             }
             
         }
@@ -123,20 +134,25 @@ public class GameLogicManager : MonoBehaviour
             //do nothing. Ignore the click
         }
     }
-    public void ResetLevel()
-    {
-        ResetBoard();
-        LevelManager.levelManager.ResetLevel();
-    }
     public void ResetBoard()
     {
-        _startTileSelected = false;
-        _currentLine = null;
         ResetLines();
+        _startTileSelected = false;
+        _currentLine = null;   
         GridManager.gridManager.ResetTiles();
+    }
+    public void FinishLevel()
+    {
+        SfxManager.sfxManager.PlayWinAudio();
+        _currentLevelComplete = true;
+        LevelManager.levelManager.FinishLevel();
     }
     void ResetLines()
     {
+        if(_currentLine)
+        {
+            _currentLine.DeselectCurrentStartTile();
+        }    
         foreach (ColorLine colorLine in _colorLines)
         {
             Destroy(colorLine.gameObject);

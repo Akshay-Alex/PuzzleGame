@@ -25,5 +25,33 @@ public class MenuManager : MonoBehaviour
     {
         _playgameMenu.SetActive(enabled);
     }
+    public void ResetLevel()
+    {
+        SfxManager.sfxManager.PlayClickAudio();
+        GameLogicManager.gameLogicManager.ResetBoard();
+        LevelManager.levelManager.ResetLevel();
+        LevelManager.levelManager.ToggleLevelCompleteUI(false);
+        GameLogicManager.gameLogicManager._currentLevelComplete = false;
+    }
+    public void GoBackToLevelsMenu()
+    {
+        SfxManager.sfxManager.PlayClickAudio();
+        ResetLevel();
+        LevelManager.levelManager.ToggleLevelCompleteUI(false);
+        ToggleInGameMenu(false);
+        ToggleLevelMenu(true);
+    }
+    public void CloseGame()
+    {
+        Application.Quit();
+    }
+    public void StartGame()
+    {
+        SfxManager.sfxManager.PlayClickAudio();
+        TogglePlayGameMenu(false);
+        ToggleLevelMenu(true);
+        GridManager.gridManager.GenerateGrid();
+        LevelButtonGenerator.levelButtonGenerator.GenerateLevelButtons();
+    }
 
 }

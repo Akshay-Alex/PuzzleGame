@@ -10,18 +10,24 @@ public class LevelManager : MonoBehaviour
     public static LevelManager levelManager;
     public string _levelDataPath;
     public int _numberOfColorsInCurrentLevel,_numberOfColorsCompleted;
+    public GameObject _levelCompleteUI;
     private void Start()
     {
         levelManager = this;
-        _levelDataPath = Application.dataPath + "/Resources/LevelData/";
+        //Debug.Log("streaming assets path " + Application.streamingAssetsPath);
+        _levelDataPath = Application.streamingAssetsPath + "/LevelData/";
         //CreateOneLevel();
         //SaveLevelAsJson(level1);
+    }
+    public void ToggleLevelCompleteUI(bool enabled)
+    {
+        _levelCompleteUI.SetActive(enabled);
     }
     public void CheckIfAllLinesConnected()
     {
         if (_numberOfColorsCompleted >= _numberOfColorsInCurrentLevel)
         {
-            FinishLevel();
+            GameLogicManager.gameLogicManager.FinishLevel();
         }
     }
     public void ColorCompleted()
@@ -30,13 +36,15 @@ public class LevelManager : MonoBehaviour
     }
     public void FinishLevel()
     {
-        GameLogicManager.gameLogicManager.ResetBoard();
-        MenuManager.menuManager.ToggleLevelMenu(true);
-        MenuManager.menuManager.ToggleInGameMenu(false);
-        Debug.Log("level finished");
+        ToggleLevelCompleteUI(true);
+        //GameLogicManager.gameLogicManager.ResetBoard();
+        //MenuManager.menuManager.ToggleLevelMenu(true);
+        //MenuManager.menuManager.ToggleInGameMenu(false);
+        //Debug.Log("level finished");
     }
     void LoadLevel(string json)
     {
+        GameLogicManager.gameLogicManager.ResetBoard();
         var level = JsonConvert.DeserializeObject<Level>(json);
         _currentLevel = json;
         foreach(KeyValuePair<string,string> point in level._startPoints)
@@ -50,6 +58,7 @@ public class LevelManager : MonoBehaviour
         }
         _numberOfColorsInCurrentLevel = level._startPoints.Count/2;
         _numberOfColorsCompleted = 0;
+        GameLogicManager.gameLogicManager._currentLevelComplete = false;
     }
     public void ResetLevel()
     {
@@ -67,7 +76,7 @@ public class LevelManager : MonoBehaviour
         float floatx, floaty;
         rString = rString.Replace('(', ' ');
         rString = rString.Replace(')', ' ');
-        Debug.Log("Vector 2 value after removing ( " + rString);
+        //Debug.Log("Vector 2 value after removing ( " + rString);
         string[] temp = rString.Substring(0, rString.Length - 1).Split(',');
         floatx = System.Convert.ToSingle(temp[0]);
         floaty = System.Convert.ToSingle(temp[1]);
