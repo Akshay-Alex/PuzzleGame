@@ -61,8 +61,10 @@ public class GameLogicManager : MonoBehaviour
             {
                 TryToSelectStartTile(_selectedtile);
             }
-        }  
+        }
+        UpdateBoardFillPercentageText();
     }
+
     void TryToCreatePath(Tile tile)
     {
         if(tile == _currentLine._currentSelectedTile)
@@ -74,6 +76,7 @@ public class GameLogicManager : MonoBehaviour
             if(IsAnotherStartingTile(tile))
             {
                 ReplaceStartingTile(tile);
+                //TryToSelectStartTile(tile);
             }
             else if(IsNotStartingTile(tile))
             {
@@ -134,12 +137,17 @@ public class GameLogicManager : MonoBehaviour
             //do nothing. Ignore the click
         }
     }
+    void UpdateBoardFillPercentageText()
+    {
+        LevelManager.levelManager._boardFillPercentageText.text = "Board fill percentage : "+ GridManager.gridManager.CalculateBoardFillPercentage() + "%";
+    }
     public void ResetBoard()
     {
         ResetLines();
         _startTileSelected = false;
         _currentLine = null;   
         GridManager.gridManager.ResetTiles();
+        UpdateBoardFillPercentageText();
     }
     public void FinishLevel()
     {

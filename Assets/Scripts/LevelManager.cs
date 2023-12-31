@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
+using TMPro;
 
 public class LevelManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class LevelManager : MonoBehaviour
     public string _levelDataPath;
     public int _numberOfColorsInCurrentLevel,_numberOfColorsCompleted;
     public GameObject _levelCompleteUI;
+    public TextMeshProUGUI _boardFillPercentageText;
     private void Start()
     {
         levelManager = this;

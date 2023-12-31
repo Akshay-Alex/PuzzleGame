@@ -10,7 +10,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Tile _tilePrefab;
 
     private Transform _cam;
-
+    float totalNumberOfTiles;
     private Dictionary<Vector2, Tile> _tiles;
     public static GridManager gridManager;
 
@@ -43,10 +43,23 @@ public class GridManager : MonoBehaviour
                 _tiles[new Vector2(x, y)] = spawnedTile;
             }
         }
+        totalNumberOfTiles = _width * _height;
         //transform.position = new Vector3(-((float)_width / 2 - 0.5f), -((float)_height / 2 - 0.5f), -1);
         //_cam.transform.position = new Vector3(((float)_width / 2 - 0.5f), ((float)_height / 2 - 0.5f), 10);
         SetGridAsCenter();
 
+    }
+    public float CalculateBoardFillPercentage()
+    {
+        float numberOfTilesFilled = 0f;
+        foreach (KeyValuePair<Vector2, Tile> Tile in _tiles)
+        {
+           if(Tile.Value._isLineDrawnThroughTile)
+            {
+                numberOfTilesFilled++;
+            }
+        }
+        return ((numberOfTilesFilled / totalNumberOfTiles)*100);
     }
     public void ResetTiles()
     {
