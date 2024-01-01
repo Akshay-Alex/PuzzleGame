@@ -51,7 +51,7 @@ public class MenuManager : MonoBehaviour
         TogglePlayGameMenu(false);
         ToggleLevelMenu(true);
         GridManager.gridManager.GenerateGrid();
-        LevelButtonGenerator.levelButtonGenerator.GenerateLevelButtons();
+        LevelButtonGenerator.levelButtonGenerator.GenerateLevelButtonsFromResources();
     }
 
 }

@@ -23,6 +23,19 @@ public class LevelButtonGenerator : MonoBehaviour
             _levelCount++;
         }
     }
+    public void GenerateLevelButtonsFromResources()
+    {
+        var allLevelFiles = Resources.LoadAll("LevelData");
+        foreach(var file in allLevelFiles)
+        {
+            var button = GameObject.Instantiate(_levelButtonPrefab, _buttonsParentObject);
+            var buttonData = button.GetComponent<LevelButtonData>();
+            buttonData._text.text = _levelCount.ToString();
+            buttonData._levelDataFileName = file.name;
+            button.gameObject.name = file.name;
+            _levelCount++;
+        }
+    }
     private void Start()
     {
         _levelCount = 1;

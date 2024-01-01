@@ -27,7 +27,7 @@ public class LevelManager : MonoBehaviour
     }
     public void CheckIfAllLinesConnected()
     {
-        if (_numberOfColorsCompleted >= _numberOfColorsInCurrentLevel)
+        if (_numberOfColorsCompleted >= _numberOfColorsInCurrentLevel && GridManager.gridManager.CalculateBoardFillPercentage() >= 100)
         {
             GameLogicManager.gameLogicManager.FinishLevel();
         }
@@ -55,7 +55,8 @@ public class LevelManager : MonoBehaviour
             Color color;
             ColorUtility.TryParseHtmlString(point.Value, out color);
             Tile.SetAsStartTile(color);
-            Tile._isStartingTile = true;
+            Tile._isPermanentStartTile = true;
+            //Tile._isStartingTile = true;
             
         }
         _numberOfColorsInCurrentLevel = level._startPoints.Count/2;
@@ -69,6 +70,14 @@ public class LevelManager : MonoBehaviour
     public void ReadAndLoadLevel(string _filename)
     {
         string json = File.ReadAllText(_levelDataPath + _filename);
+        LoadLevel(json);
+        MenuManager.menuManager.ToggleLevelMenu(false);
+        MenuManager.menuManager.ToggleInGameMenu(true);
+    }
+    public void ReadAndLoadLevelFromResources(string _filename)
+    {
+        string json = Resources.Load("LevelData/" + _filename).ToString();
+        //string json = File.ReadAllText(_levelDataPath + _filename);
         LoadLevel(json);
         MenuManager.menuManager.ToggleLevelMenu(false);
         MenuManager.menuManager.ToggleInGameMenu(true);

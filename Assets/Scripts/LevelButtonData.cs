@@ -12,6 +12,7 @@ public class LevelButtonData : MonoBehaviour
     public void LoadThisLevel()
     {
         //SfxManager.sfxManager.PlayClickAudio();
-        LevelManager.levelManager.ReadAndLoadLevel(_levelDataFileName);
+        Debug.Log(_levelDataFileName);
+        LevelManager.levelManager.ReadAndLoadLevelFromResources(_levelDataFileName);
     }
 }

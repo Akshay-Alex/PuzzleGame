@@ -67,10 +67,12 @@ public class GridManager : MonoBehaviour
         {
             var tile = Tile.Value;
             tile._isStartingTile = false;
+            tile._isPermanentStartTile = false;
             tile._isLineDrawnThroughTile = false;
             tile.ToggleCircle(false);
         }
     }
+    
     void SetGridAsCenter()
     {
         _cam.transform.position = new Vector3(((float)_width / 2 - 0.5f), ((float)_height / 2 - 0.5f), -10);

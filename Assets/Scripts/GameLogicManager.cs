@@ -25,14 +25,15 @@ public class GameLogicManager : MonoBehaviour
         var colorLine = Instantiate(_colorLinePrefab, Vector3.one, Quaternion.identity, this.transform);
         SetLineColor(colorLine, color);
         _colorLines.Add(colorLine);
+        colorLine._currentSelectedTile = startTile;
+        colorLine._currentStartTile = startTile;
+        colorLine.AddStartingTileToLine(startTile);
         _currentLine = colorLine;
-        _currentLine._currentSelectedTile = startTile;
-        _currentLine._currentStartTile = startTile;
-        _currentLine.AddStartingTileToLine(startTile);
+
     }
     public bool IsNotStartingTile(Tile tile)
     {
-        if(!tile._isStartingTile)
+        if (!tile._isStartingTile)
         {
             return true;
         }
@@ -50,7 +51,7 @@ public class GameLogicManager : MonoBehaviour
     //start of logic
     public void TileSelected(Tile _selectedtile)
     {
-        if(!_currentLevelComplete)
+        if (!_currentLevelComplete)
         {
             SfxManager.sfxManager.PlayClickAudio();
             if (_startTileSelected)
@@ -64,38 +65,55 @@ public class GameLogicManager : MonoBehaviour
         }
         UpdateBoardFillPercentageText();
     }
+    public void OnTileClicked(Tile tile)
+    {
+        if (!_currentLevelComplete)
+        {
+            SfxManager.sfxManager.PlayClickAudio();
+            TryToSelectStartTile(tile);
+            UpdateBoardFillPercentageText();
+        }
 
+    }
+    public void OnDraggedOverTile(Tile tile)
+    {
+        Debug.Log("OnDraggedOverTile called");
+        if (!_currentLevelComplete)
+        {
+            //SfxManager.sfxManager.PlayClickAudio();
+            if (_startTileSelected)
+            {
+                TryToCreatePath(tile);
+            }
+            UpdateBoardFillPercentageText();
+        }
+    }
     void TryToCreatePath(Tile tile)
     {
-        if(tile == _currentLine._currentSelectedTile)
+        if (tile == _currentLine._currentSelectedTile)
         {
             //do nothing. managing the edge case where user clicks the selected tile again.
         }
         else
         {
-            if(IsAnotherStartingTile(tile))
+            if (IsEndTile(tile))
             {
-                ReplaceStartingTile(tile);
-                //TryToSelectStartTile(tile);
+                //_currentLine.AddNewPoint(tile);
+                _startTileSelected = false;
+                _currentLine.FinishLine(tile);
             }
-            else if(IsNotStartingTile(tile))
+            else
             {
                 _currentLine.AddNewPoint(tile);
             }
-            else if(IsEndTile(tile))
-            {
-                if(_currentLine._tilesInSameLine.Contains(tile))
-                {
-                    _startTileSelected = false;
-                    _currentLine.FinishLine(tile);
-                }            
-            }
-            
+
         }
     }
+
+
     bool IsEndTile(Tile tile)
     {
-        if(tile._isStartingTile && !(_currentLine._points.Contains(tile.transform.position)))
+        if (tile._isPermanentStartTile && (_currentLine && (_currentLine.GetColor() == tile._startingTileColor)))
         {
             return true;
         }
@@ -103,9 +121,9 @@ public class GameLogicManager : MonoBehaviour
     }
     void ReplaceStartingTile(Tile tile)
     {
-        ResetTilesOfCurrentLine();
-        _currentLine.DeleteAllPoints();
-        tile.ToggleTileHighlight(true);
+        //ResetTilesOfCurrentLine();
+        //_currentLine.DeleteAllPoints();
+        //tile.ToggleTileHighlight(true);
         CreateColorLine(tile._startingTileColor, tile);
     }
     void ResetTilesOfCurrentLine()
@@ -118,7 +136,7 @@ public class GameLogicManager : MonoBehaviour
     }
     public bool IsAnotherStartingTile(Tile tile)
     {
-        if(tile._isStartingTile && tile._startingTileColor != _currentLine.GetColor())
+        if (tile._isStartingTile && tile._startingTileColor != _currentLine.GetColor())
         {
             return true;
         }
@@ -126,26 +144,71 @@ public class GameLogicManager : MonoBehaviour
     }
     void TryToSelectStartTile(Tile tile)
     {
-        if(tile._isStartingTile)
+        if (tile._isStartingTile)
         {
             _startTileSelected = true;
-            tile.ToggleTileHighlight(true);
-            CreateColorLine(tile._startingTileColor, tile);
+            if (IsEndTile(tile))
+            {
+                if(_currentLine)
+                    _currentLine.ResetLine();
+                CreateColorLine(tile._startingTileColor, tile);
+            }
+            else
+            {
+                if (CheckIfLineAlreadyExists(tile))
+                {
+                    SwapCurrentLine(tile, tile._startingTileColor);
+                }
+                else
+                {
+                    CreateColorLine(tile._startingTileColor, tile);
+                    //_currentLine._tilesFilled.Add(tile);
+                }
+            }
+            
+
+            //tile.ToggleTileHighlight(true);
+
         }
         else
         {
             //do nothing. Ignore the click
         }
     }
+    public void SwapCurrentLine(Tile clickedTile, Color newColor)
+    {
+        _currentLine._currentSelectedTile = null;
+        ColorLine newCurrentline = FindColorLineOfColor(newColor);
+        newCurrentline.SetTileAsCurrentSelectedTile(clickedTile);
+        _currentLine = newCurrentline;
+    }
+    bool CheckIfLineAlreadyExists(Tile tile)
+    {
+        foreach (ColorLine line in _colorLines)
+        {
+            if (line.GetColor() == tile._startingTileColor)
+                return true;
+        }
+        return false;
+    }
+    public ColorLine FindColorLineOfColor(Color color)
+    {
+        foreach (ColorLine colorLine in _colorLines)
+        {
+            if (colorLine.GetColor() == color)
+                return colorLine;
+        }
+        return null;
+    }
     void UpdateBoardFillPercentageText()
     {
-        LevelManager.levelManager._boardFillPercentageText.text = "Board fill percentage : "+ GridManager.gridManager.CalculateBoardFillPercentage() + "%";
+        LevelManager.levelManager._boardFillPercentageText.text = "Board fill percentage : " + GridManager.gridManager.CalculateBoardFillPercentage() + "%";
     }
     public void ResetBoard()
     {
         ResetLines();
         _startTileSelected = false;
-        _currentLine = null;   
+        _currentLine = null;
         GridManager.gridManager.ResetTiles();
         UpdateBoardFillPercentageText();
     }
@@ -157,23 +220,27 @@ public class GameLogicManager : MonoBehaviour
     }
     void ResetLines()
     {
-        if(_currentLine)
+        /*
+        if (_currentLine)
         {
             _currentLine.DeselectCurrentStartTile();
-        }    
+        }
+        */
         foreach (ColorLine colorLine in _colorLines)
         {
             Destroy(colorLine.gameObject);
         }
         _colorLines.Clear();
     }
+    /*
     public void MouseHoveredOverTile(Tile tile)
     {
-        if(_currentLine && _currentLine._currentSelectedTile)
+        if (_currentLine && _currentLine._currentSelectedTile)
         {
             _currentLine.HighlightPossiblePath(tile);
         }
     }
+    */
     // Update is called once per frame
     void Update()
     {

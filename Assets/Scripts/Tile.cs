@@ -10,7 +10,9 @@ public class Tile : MonoBehaviour
     
     public bool _isLineDrawnThroughTile;
     public bool _isStartingTile;
+    public bool _isPermanentStartTile;
     public Color _startingTileColor;
+    public Color FilledColor;
 
     public void Init(bool isOffset)
     {
@@ -24,26 +26,44 @@ public class Tile : MonoBehaviour
     }
     public void SetAsStartTile(Color color)
     {
+        _isStartingTile = true;
         _startingTileColor = color;
         _dotSprite.color = color;
         ToggleCircle(true);
+    }
+    public void DisableStartTile()
+    {
+        _isStartingTile = false;
+        ToggleCircle(false);
     }
     public void ToggleCircle(bool enabled)
     {
         _dotSprite.gameObject.SetActive(enabled);
     }
-    void OnMouseEnter()
+    public void OnMouseEnter()
     {
-        GameLogicManager.gameLogicManager.MouseHoveredOverTile(this);
+        if(Input.GetMouseButton(0))
+        {
+            GameLogicManager.gameLogicManager.OnDraggedOverTile(this);
+        }
+        //GameLogicManager.gameLogicManager.MouseHoveredOverTile(this);
     }
 
     void OnMouseExit()
     {
         //UnHighlightCurrentEndTile();
     }
-    private void OnMouseDown()
+    void OnMouseDrag()
     {
-        GameLogicManager.gameLogicManager.TileSelected(this);
+        //GameLogicManager.gameLogicManager.OnDraggedOverTile(this);
+    }
+    public void OnMouseUp()
+    {
+        //GameLogicManager.gameLogicManager.TileSelected(this);
+    }
+    public void OnMouseDown()
+    {
+        GameLogicManager.gameLogicManager.OnTileClicked(this);
         /*
         if (GameLogicManager.gameLogicManager._currentLine && GameLogicManager.gameLogicManager._currentLine._currentSelectedTile == this)
         {
