@@ -47,7 +47,7 @@ public class GameLogicManager : MonoBehaviour
     {
         colorLine.SetColor(color);
     }
-
+    /*
     //start of logic
     public void TileSelected(Tile _selectedtile)
     {
@@ -65,6 +65,7 @@ public class GameLogicManager : MonoBehaviour
         }
         UpdateBoardFillPercentageText();
     }
+    */
     public void OnTileClicked(Tile tile)
     {
         if (!_currentLevelComplete)
@@ -81,7 +82,7 @@ public class GameLogicManager : MonoBehaviour
         if (!_currentLevelComplete)
         {
             //SfxManager.sfxManager.PlayClickAudio();
-            if (_startTileSelected)
+            if (_startTileSelected && _currentLine.IsNextPositionAdjacent(tile.transform.position))
             {
                 TryToCreatePath(tile);
             }
@@ -90,7 +91,7 @@ public class GameLogicManager : MonoBehaviour
     }
     void TryToCreatePath(Tile tile)
     {
-        if (tile == _currentLine._currentSelectedTile)
+        if (tile == _currentLine._currentSelectedTile || IsAnotherStartingTile(tile))
         {
             //do nothing. managing the edge case where user clicks the selected tile again.
         }
@@ -113,11 +114,22 @@ public class GameLogicManager : MonoBehaviour
 
     bool IsEndTile(Tile tile)
     {
-        if (tile._isPermanentStartTile && (_currentLine && (_currentLine.GetColor() == tile._startingTileColor)))
+        if (tile._isPermanentStartTile && (TileIsNotInAnyLine(tile)) && (_currentLine && (_currentLine.GetColor() == tile._startingTileColor)))
         {
             return true;
         }
         return false;
+    }
+    bool TileIsNotInAnyLine(Tile tile)
+    {
+        foreach (ColorLine line in _colorLines)
+        {
+            if(line._points.Contains(tile.transform.position))
+            {
+                return false;
+            }
+        }
+        return true;
     }
     void ReplaceStartingTile(Tile tile)
     {
@@ -142,6 +154,7 @@ public class GameLogicManager : MonoBehaviour
         }
         return false;
     }
+    /*
     void TryToSelectStartTile(Tile tile)
     {
         if (tile._isStartingTile)
@@ -156,7 +169,7 @@ public class GameLogicManager : MonoBehaviour
             else
             {
                 if (CheckIfLineAlreadyExists(tile))
-                {
+                {   
                     SwapCurrentLine(tile, tile._startingTileColor);
                 }
                 else
@@ -175,12 +188,38 @@ public class GameLogicManager : MonoBehaviour
             //do nothing. Ignore the click
         }
     }
+    */
+    void TryToSelectStartTile(Tile tile)
+    {
+        if(tile._isStartingTile)
+        {
+            if(CheckIfLineAlreadyExists(tile))
+            {
+                ColorLine existingColorLine = FindColorLineOfColor(tile._startingTileColor);
+                if (tile._isPermanentStartTile)
+                {
+                    existingColorLine.ResetLine();
+                    CreateColorLine(tile._startingTileColor, tile);
+                }
+                else
+                {
+                    _currentLine = existingColorLine;
+                    _currentLine._currentSelectedTile = tile;
+                }
+            }
+            else
+            {
+                CreateColorLine(tile._startingTileColor, tile);
+            }
+            _startTileSelected = true;
+        }
+    }
     public void SwapCurrentLine(Tile clickedTile, Color newColor)
     {
         _currentLine._currentSelectedTile = null;
         ColorLine newCurrentline = FindColorLineOfColor(newColor);
         newCurrentline.SetTileAsCurrentSelectedTile(clickedTile);
-        _currentLine = newCurrentline;
+        _currentLine = newCurrentline;          
     }
     bool CheckIfLineAlreadyExists(Tile tile)
     {

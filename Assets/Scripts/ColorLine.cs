@@ -128,6 +128,10 @@ public class ColorLine : MonoBehaviour
         {
             Tile tileToRemoveLineFrom = GridManager.gridManager.GetTileAtPosition(_points[_specificTileIndex]);
             tileToRemoveLineFrom._isLineDrawnThroughTile = false;
+            if(tileToRemoveLineFrom._isPermanentStartTile)
+            {
+                tileToRemoveLineFrom._isStartingTile = true;
+            }
             _points.RemoveAt(_specificTileIndex);
             _numberOfPointsRemoved++;
             //_lineRenderer.positionCount--;
@@ -195,23 +199,21 @@ public class ColorLine : MonoBehaviour
         }
         return false;
     }
-    bool IsNextPositionAdjacent(Vector3 position)
+    public bool IsNextPositionAdjacent(Vector3 position)
     {
-        if ((IsNextTileInSameColumn(position) && !IsNextTileInSameRow(position)) || (!IsNextTileInSameColumn(position) && IsNextTileInSameRow(position)))
+        if ((FindColumnDifference(position) == 1 && FindRowDifference(position) == 0) || (FindRowDifference(position) == 1 && FindColumnDifference(position) == 0))
             return true;
         return false;
     }
-    bool IsNextTileInSameColumn(Vector3 position)
+    float FindColumnDifference(Vector3 position)
     {
-        if (Mathf.Abs(Mathf.Abs(_currentSelectedTile.transform.position.y) - Mathf.Abs(position.y)) == 1)
-            return true;
-        return false;
+        float absoluteDifference = Mathf.Abs(_currentSelectedTile.transform.position.y - position.y);
+        return absoluteDifference;
     }
-    bool IsNextTileInSameRow(Vector3 position)
+    float FindRowDifference(Vector3 position)
     {
-        if (Mathf.Abs(Mathf.Abs(_currentSelectedTile.transform.position.x) - Mathf.Abs(position.x)) == 1)
-            return true;
-        return false;
+        float absoluteDifference = Mathf.Abs(_currentSelectedTile.transform.position.x - position.x);
+        return absoluteDifference;
     }
     bool IsNextPositionInSameColumn(Vector3 position)
     {
@@ -271,8 +273,8 @@ public class ColorLine : MonoBehaviour
             }
         }
         GameLogicManager.gameLogicManager._colorLines.Remove(this);
-        Destroy(GameLogicManager.gameLogicManager._currentLine.gameObject);
-        GameLogicManager.gameLogicManager._currentLine = null;
+        Destroy(this.gameObject);
+        //GameLogicManager.gameLogicManager._currentLine = null;
     }
     /*
     bool TileCanBeFilled(Tile tile)

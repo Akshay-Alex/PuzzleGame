@@ -12,17 +12,17 @@ public class LevelGenerator : MonoBehaviour
     void CreateLevel()
     {
         level = new Level();
-        level._levelName = "Level 6";
+        level._levelName = "Level 5";
         level._startPoints.Add((new Vector2(0, 0)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.red));
-        level._startPoints.Add((new Vector2(1, 1)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.red));
+        level._startPoints.Add((new Vector2(1, 3)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.red));
         level._startPoints.Add((new Vector2(1, 0)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.green));
-        level._startPoints.Add((new Vector2(4, 1)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.green));
+        level._startPoints.Add((new Vector2(1, 2)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.green));
+        level._startPoints.Add((new Vector2(2, 0)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.blue));
         level._startPoints.Add((new Vector2(2, 2)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.blue));
-        level._startPoints.Add((new Vector2(4, 3)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.blue));
-        level._startPoints.Add((new Vector2(0, 2)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.yellow));
-        level._startPoints.Add((new Vector2(0, 4)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.yellow));
-        level._startPoints.Add((new Vector2(1, 3)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.gray));
-        level._startPoints.Add((new Vector2(4, 4)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.gray));
+        level._startPoints.Add((new Vector2(3, 0)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.yellow));
+        level._startPoints.Add((new Vector2(3, 2)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.yellow));
+        level._startPoints.Add((new Vector2(4, 0)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.gray));
+        level._startPoints.Add((new Vector2(4, 2)).ToString(), "#" + ColorUtility.ToHtmlStringRGBA(Color.gray));
     }
     void SaveLevelAsJson(Level level)
     {
